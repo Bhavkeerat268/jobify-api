@@ -1,4 +1,4 @@
-import uvicorn = {extras = ["standard"], version = "^0.12.0"}
+import uvicorn
 from fastapi import FastAPI
 import json
 import difflib
