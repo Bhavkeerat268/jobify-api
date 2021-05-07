@@ -40,11 +40,6 @@ def rec(keywords: Keyword):
             "name": final[x]['NAME'],
             "job": final[x]['JOB'],
             "location": final[x]['CITY'],
-            "shift": final[x]['SHIFT'],
-            "pay": final[x]['SALARY'],
-            "time": final[x]['TIME'],
-            "age": final[x]['AGE'],
-            "gender": final[x]['GENDER'],
             "id": final[x]['RANK']
         }
         rec_list.append(rec_row)
