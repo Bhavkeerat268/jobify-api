@@ -52,7 +52,7 @@ def rec(keywords: Keyword):
 
     return {"recommend": final_list}
 
-@app.get('/rec/{idi}')
+@app.get('/rec/id/{idi}')
 def getdetails(idi: str):
     datarow = {
         "id":df.iloc[int(idi) - 1]['Rank'],
