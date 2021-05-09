@@ -11,14 +11,6 @@ from difflib import SequenceMatcher, get_close_matches
 
 df = pd.read_csv("final_dataset.csv")
 df.drop(df.columns[df.columns.str.contains('Unnamed', case=False)], axis=1, inplace=True)
-list=df.values.tolist()
-print(list)
-
-class User(BaseModel):
-    UserName:str
-    UserJob:str
-    UserLocation:str
-    UserId:str
 
 
 
@@ -71,15 +63,6 @@ def getdetails(idi: str):
     return {"item_data": json_data}
 
 
-@app.get('/users', response_model=Page[User])
-async def get_users():
-    users=[]
-    for i in list:
-        model=User(UserName= str(i[0]) ,UserJob = str(i[2]),UserLocation = str(i[1]),UserId = str(i[8]))
-        users.append(model)
-
-    return paginate(users)
-add_pagination(app)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)
