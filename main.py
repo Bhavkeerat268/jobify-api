@@ -4,25 +4,31 @@ import json
 import difflib
 from Recommender import Recommend
 from pydantic import BaseModel
-import numpy as np
 import pandas as pd
 from difflib import SequenceMatcher, get_close_matches
 from fastapi_pagination import Page, add_pagination, paginate
+import pyrebase
 
+app = FastAPI()
+firebaseConfig = {
+    "apiKey": "AIzaSyDYftrLjRC_l1xz0PoN7Exzw2NIqO27jTA",
+    "authDomain": "jobifi-6e1d1.firebaseapp.com",
+    "databaseURL": "https://jobifi-6e1d1-default-rtdb.firebaseio.com",
+    "projectId": "jobifi-6e1d1",
+    "storageBucket": "jobifi-6e1d1.appspot.com",
+    "messagingSenderId": "925759922851",
+    "appId": "1:925759922851:web:8cfa6e8963743c69071516",
+    "measurementId": "G-0XB1EM1YTE"
+}
 
-df = pd.read_csv("final_dataset.csv")
-df.drop(df.columns[df.columns.str.contains('Unnamed', case=False)], axis=1, inplace=True)
-list=df.values.tolist()
-print(list)
 
 class User(BaseModel):
-    UserName:str
-    UserJob:str
-    UserLocation:str
-    UserId:str
-
-
-
+    Id: str
+    JobProvideName: str
+    JobName: str
+    JobLocation: str
+    JobProvNumber: str
+    Book: str
 
 
 class Keyword(BaseModel):
@@ -33,9 +39,16 @@ def np_encoder(object):
     if isinstance(object, np.generic):
         return object.item()
 
-    
 
-app = FastAPI()
+df = pd.DataFrame()
+firebase = pyrebase.initialize_app(firebaseConfig)
+db = firebase.database()
+jobs = db.child("JobList").get()
+for job in jobs:
+    df = df.append(job.val(), ignore_index=True, verify_integrity=False, sort=False)
+df.columns = df.columns.str.upper()
+
+allDatalist = df.to_dict('records')
 
 
 @app.get('/')
@@ -50,41 +63,63 @@ def rec(keywords: Keyword):
     rec_list = []
     for x in range(len(final)):
         rec_row = {
-            "name": final[x]['NAME'],
-            "job": final[x]['JOB'],
-            "location": final[x]['CITY'],
-            "id": final[x]['RANK']
+            "id": final[x]['ID'],
+            "jobprovidename": final[x]['JOBPROVIDENAME'],
+            "jobname": final[x]['JOBNAME'],
+            "joblocation": final[x]['JOBLOCATION'],
+            "jobprovnumber": final[x]['JOBPROVNUMBER'],
+            "book": final[x]['BOOK']
+
         }
         rec_list.append(rec_row)
     final_list = json.dumps(rec_list, default=np_encoder)
 
     return {"recommend": final_list}
 
-@app.get('/rec/id/{idi}')
+
+@app.get('/rec/{idi}')
 def getdetails(idi: str):
+    mylist = df.loc[df['ID'] == idi].to_dict('records')
+
     datarow = {
-        "id":df.iloc[int(idi) - 1]['Rank'],
-        "shift": df.iloc[int(idi) - 1]['Shift'],
-        "pay": df.iloc[int(idi) - 1]['Salary'],
-        "time": df.iloc[int(idi) - 1]['Time'],
-        "age": df.iloc[int(idi) - 1]['Age'],
-        "gender": df.iloc[int(idi) - 1]['Gender']
+
+        "id": mylist[0]['ID'],
+        "shift": mylist[0]['SHIFT'],
+        "pay": mylist[0]['JOBPAY'],
+        "time": mylist[0]['JOBTIMINGS'],
+        "age": mylist[0]['AGESLOT'],
+        "gender": mylist[0]['JOBGENDER'],
+        "number": mylist[0]['JOBPROVNUMBER'],
+        "book": mylist[0]['BOOK']
     }
-    json_data = json.dumps(datarow, default=np_encoder)
+    json_data = json.dumps(datarow, indent=4)
     return {"item_data": json_data}
+
 
 @app.get('/users', response_model=Page[User])
 async def get_users():
-    users=[]
-    for i in list:
-        model=User(UserName= str(i[0]) ,UserJob = str(i[2]),UserLocation = str(i[1]),UserId = str(i[8]))
+    df = pd.DataFrame()
+    firebase = pyrebase.initialize_app(firebaseConfig)
+    db = firebase.database()
+    jobs = db.child("JobList").get()
+    for job in jobs:
+        df = df.append(job.val(), ignore_index=True, verify_integrity=False, sort=False)
+    df.columns = df.columns.str.upper()
+    allDatalist = df.to_dict('records')
+    print(allDatalist)
+
+    users = []
+    for i in range(len(allDatalist)):
+        model = User(Id=allDatalist[i]['ID'], JobProvideName=allDatalist[i]['JOBPROVIDENAME'],
+                     JobName=allDatalist[i]['JOBNAME'],
+                     JobLocation=allDatalist[i]['JOBLOCATION'], JobProvNumber=allDatalist[i]['JOBPROVNUMBER'],
+                     Book=allDatalist[i]['BOOK'])
         users.append(model)
 
     return paginate(users)
+
+
 add_pagination(app)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)
-
-
-
