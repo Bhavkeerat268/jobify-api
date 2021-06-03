@@ -26,7 +26,7 @@ df = pd.DataFrame()
 firebase = pyrebase.initialize_app(firebaseConfig)
 db = firebase.database()
 jobs = db.child("JobList").get()
-for job in jobs:
+for job in jobs.each():
     df = df.append(job.val(), ignore_index=True, verify_integrity=False, sort=False)
 
 df.columns = df.columns.str.upper()
