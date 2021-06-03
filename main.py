@@ -82,7 +82,8 @@ def rec(keywords: Keyword):
 @app.get('/rec/{idi}')
 def getdetails(idi: str):
     mylist = df.loc[df['ID'] == idi].to_dict('records')
-
+    print("Hello")
+    print(mylist[0]['ID'])
     datarow = {
 
         "id": mylist[0]['ID'],
