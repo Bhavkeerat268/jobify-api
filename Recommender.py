@@ -1,64 +1,81 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[2]:
-
 from difflib import get_close_matches
-
 import numpy as np
 import pandas as pd
+import pyrebase
 
-# In[3]:
+# df = pd.read_csv("final_dataset.csv")
+# df.drop(df.columns[df.columns.str.contains('Unnamed',case = False)],axis = 1, inplace = True)
+# df.isnull().any()
+# df = df.replace(r'^\s+$', np.nan, regex=True)
+# df = df.dropna()
+# df.head(5)
 
+firebaseConfig = {
+    "apiKey": "AIzaSyDYftrLjRC_l1xz0PoN7Exzw2NIqO27jTA",
+    "authDomain": "jobifi-6e1d1.firebaseapp.com",
+    "databaseURL": "https://jobifi-6e1d1-default-rtdb.firebaseio.com",
+    "projectId": "jobifi-6e1d1",
+    "storageBucket": "jobifi-6e1d1.appspot.com",
+    "messagingSenderId": "925759922851",
+    "appId": "1:925759922851:web:8cfa6e8963743c69071516",
+    "measurementId": "G-0XB1EM1YTE"
+};
 
-df = pd.read_csv("final_dataset.csv")
-df.drop(df.columns[df.columns.str.contains('Unnamed',case = False)],axis = 1, inplace = True)
+df = pd.DataFrame()
 
-df.isnull().any()
-
-df = df.replace(r'^\s+$', np.nan, regex=True)
-
-# In[7]:
-
-
-df = df.dropna()
-
-# In[8]:
-
-
-df.head(5)
-
-# In[9]:
-
+firebase = pyrebase.initialize_app(firebaseConfig)
+db = firebase.database()
+jobs = db.child("JobList").get()
+for job in jobs:
+    df = df.append(job.val(), ignore_index=True, verify_integrity=False, sort=False)
 
 df.columns = df.columns.str.upper()
 
 
+
 def combine_features(row):
-    return row['CITY'] + " " + row['JOB'] + " " + row['SHIFT'] + " " + row['AGE'] + " " + row['GENDER'] + " " + str(
-        row['RANK'])
+    return row['JOBLOCATION'] + " " + row['JOBNAME'] + " " + row['SHIFT'] + " " + row['AGESLOT'] + " " + row[
+        'JOBGENDER'] + " " + row['ID']
 
 
 df["COMBINED_FEATURES"] = df.apply(combine_features, axis=1)
 
-df.head()
-
 
 class Recommend:
     def recommend(data):
+        df = pd.DataFrame()
+
+        firebase = pyrebase.initialize_app(firebaseConfig)
+        db = firebase.database()
+        jobs = db.child("JobList").get()
+        for job in jobs:
+            df = df.append(job.val(), ignore_index=True, verify_integrity=False, sort=False)
+        print(df)
+        df.columns = df.columns.str.upper()
+        df["COMBINED_FEATURES"] = df.apply(combine_features, axis=1)
+
         recommendations = []
-        match = get_close_matches(data, df["COMBINED_FEATURES"], n=20, cutoff=0.65)
+        match = get_close_matches(data, df["COMBINED_FEATURES"], n=20, cutoff=0.5)
+
         final = []
         ranklist = []
+
 
         for x in range(len(match)):
             a = match[x].split(' ')
             final.append(a)
-            ranklist.append(final[x][5]) # getting ids
+            ranklist.append(final[x][5])
 
-        for x in range(len(ranklist)):
-            listnew = dict(df.iloc[int(ranklist[x]) - 1])
-            recommendations.append(listnew)
+        dfu=df.loc[df['ID'].isin(ranklist)]
+        print(dfu.to_dict('records'))
 
-        return recommendations
+        return dfu.to_dict('records')
+
+
+
+
+
+
+
+
 
