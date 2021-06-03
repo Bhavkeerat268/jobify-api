@@ -45,6 +45,7 @@ firebase = pyrebase.initialize_app(firebaseConfig)
 db = firebase.database()
 jobs = db.child("JobList").get()
 for job in jobs:
+    print(job.val())
     df = df.append(job.val(), ignore_index=True, verify_integrity=False, sort=False)
 df.columns = df.columns.str.upper()
 
