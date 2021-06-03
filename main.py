@@ -27,8 +27,8 @@ class User(BaseModel):
     JobProvideName: str
     JobName: str
     JobLocation: str
-    JobProvNumber: str
-    Book: str
+    JobProvNumber:str
+    Book:str
 
 
 class Keyword(BaseModel):
@@ -51,6 +51,7 @@ df.columns = df.columns.str.upper()
 allDatalist = df.to_dict('records')
 
 
+
 @app.get('/')
 def index():
     return {"text": "Hel ir"}
@@ -68,7 +69,7 @@ def rec(keywords: Keyword):
             "jobname": final[x]['JOBNAME'],
             "joblocation": final[x]['JOBLOCATION'],
             "jobprovnumber": final[x]['JOBPROVNUMBER'],
-            "book": final[x]['BOOK']
+            "book":final[x]['BOOK']
 
         }
         rec_list.append(rec_row)
@@ -110,10 +111,9 @@ async def get_users():
 
     users = []
     for i in range(len(allDatalist)):
-        model = User(Id=allDatalist[i]['ID'], JobProvideName=allDatalist[i]['JOBPROVIDENAME'],
-                     JobName=allDatalist[i]['JOBNAME'],
-                     JobLocation=allDatalist[i]['JOBLOCATION'], JobProvNumber=allDatalist[i]['JOBPROVNUMBER'],
-                     Book=allDatalist[i]['BOOK'])
+
+        model = User(Id=allDatalist[i]['ID'], JobProvideName=allDatalist[i]['JOBPROVIDENAME'], JobName=allDatalist[i]['JOBNAME'],
+                     JobLocation=allDatalist[i]['JOBLOCATION'],JobProvNumber=allDatalist[i]['JOBPROVNUMBER'],Book=allDatalist[i]['BOOK'])
         users.append(model)
 
     return paginate(users)
@@ -122,4 +122,4 @@ async def get_users():
 add_pagination(app)
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True)
+    uvicorn.run("main:app",reload=True)
