@@ -44,10 +44,12 @@ df["COMBINED_FEATURES"] = df.apply(combine_features, axis=1)
 class Recommend:
     def recommend(data):
         df = pd.DataFrame()
-
+        empty_data=[]
         firebase = pyrebase.initialize_app(firebaseConfig)
         db = firebase.database()
         jobs = db.child("JobList").get()
+        if(jobs.val()==None):
+            return empty_data
         for job in jobs.each():
             df = df.append(job.val(), ignore_index=True, verify_integrity=False, sort=False)
         print(df)
