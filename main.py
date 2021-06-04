@@ -113,7 +113,7 @@ async def get_users():
     firebase = pyrebase.initialize_app(firebaseConfig)
     db = firebase.database()
     jobs = db.child("JobList").get()
-    if type(jobs.val()==None):
+    if type(jobs.val()==None) and len(jobs.val())==0:
         print("True")
         users = []
         model=User(Id="None",JobProvideName="None",JobName="None",JobLocation="None",JobProvNumber="None",Book="None")
