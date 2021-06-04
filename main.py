@@ -120,11 +120,11 @@ async def get_users():
     db = firebase.database()
     jobs = db.child("JobList").get()
         if type(jobs.val()==None):
-        print("True")
-        users = []
-        model=User(Id="None",JobProvideName="None",JobName="None",JobLocation="None",JobProvNumber="None",Book="None")
-        users.append(model)
-        return paginate(users)
+            print("True")
+            users = []
+            model=User(Id="None",JobProvideName="None",JobName="None",JobLocation="None",JobProvNumber="None",Book="None")
+            users.append(model)
+            return paginate(users)
         else:
             for job in jobs.each():
                 df = df.append(job.val(), ignore_index=True, verify_integrity=False, sort=False)
