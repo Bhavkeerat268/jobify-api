@@ -40,16 +40,9 @@ def np_encoder(object):
         return object.item()
 
 
-df = pd.DataFrame()
-firebase = pyrebase.initialize_app(firebaseConfig)
-db = firebase.database()
-jobs = db.child("JobList").get()
-for job in jobs.each():
-    print(job.val())
-    df = df.append(job.val(), ignore_index=True, verify_integrity=False, sort=False)
-df.columns = df.columns.str.upper()
 
-allDatalist = df.to_dict('records')
+
+
 
 
 
@@ -60,7 +53,7 @@ def index():
 
 @app.post('/rec/')
 def rec(keywords: Keyword):
-    input_str = keywords.ckeyword
+    input_str=keywords.ckeyword
     final = Recommend.recommend(input_str)
     if len(final)==0:
         return {"recommend:No data"}
@@ -89,12 +82,12 @@ def getdetails(idi: str):
     jobs = db.child("JobList").get()
     if(jobs.val()==None):
         return {"item":"No data"}
-    for job in jobs.each():
+    for job in jobs:
         df = df.append(job.val(), ignore_index=True, verify_integrity=False, sort=False)
     df.columns = df.columns.str.upper()
     mylist = df.loc[df['ID'] == idi].to_dict('records')
-    print("My list is")
-    print(mylist)
+    print("Hello")
+    print(mylist[0])
     if(len(mylist[0])==0):
          return {"item_data": "Not Found"}
     else:
@@ -113,7 +106,8 @@ def getdetails(idi: str):
         return {"item_data": json_data}
 
 
-    @app.get('/users', response_model=Page[User])
+
+@app.get('/users', response_model=Page[User])
 async def get_users():
     df = pd.DataFrame()
     firebase = pyrebase.initialize_app(firebaseConfig)
@@ -141,5 +135,9 @@ async def get_users():
 
         return paginate(users)
 
+
+
+add_pagination(app)
+
 if __name__ == "__main__":
-    uvicorn.run("main:app",reload=True)
+    uvicorn.run("main:app",host="192.168.1.68",port=8000,reload=True)
