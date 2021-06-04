@@ -56,7 +56,7 @@ def rec(keywords: Keyword):
     input_str=keywords.ckeyword
     final = Recommend.recommend(input_str)
     if len(final)==0:
-        return {"recommend:No data"}
+        return {"recommend":"No data"}
     rec_list = []
     for x in range(len(final)):
         rec_row = {
