@@ -83,20 +83,22 @@ def rec(keywords: Keyword):
 def getdetails(idi: str):
     mylist = df.loc[df['ID'] == idi].to_dict('records')
     print("Hello")
-    print(mylist[0]['ID'])
-    datarow = {
+    if(len(mylist[0])==0):
+         return {"item_data": "Not Found"}
+    else:
+        datarow = {
 
-        "id": mylist[0]['ID'],
-        "shift": mylist[0]['SHIFT'],
-        "pay": mylist[0]['JOBPAY'],
-        "time": mylist[0]['JOBTIMINGS'],
-        "age": mylist[0]['AGESLOT'],
-        "gender": mylist[0]['JOBGENDER'],
-        "number": mylist[0]['JOBPROVNUMBER'],
-        "book": mylist[0]['BOOK']
-    }
-    json_data = json.dumps(datarow, indent=4)
-    return {"item_data": json_data}
+            "id": mylist[0]['ID'],
+            "shift": mylist[0]['SHIFT'],
+            "pay": mylist[0]['JOBPAY'],
+            "time": mylist[0]['JOBTIMINGS'],
+            "age": mylist[0]['AGESLOT'],
+            "gender": mylist[0]['JOBGENDER'],
+            "number": mylist[0]['JOBPROVNUMBER'],
+            "book": mylist[0]['BOOK']
+        }
+        json_data = json.dumps(datarow, indent=4)
+        return {"item_data": json_data}
 
 
 @app.get('/users', response_model=Page[User])
