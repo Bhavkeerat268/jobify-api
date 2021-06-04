@@ -82,7 +82,7 @@ def rec(keywords: Keyword):
 @app.get('/rec/{idi}')
 def getdetails(idi: str):
     mylist = df.loc[df['ID'] == idi].to_dict('records')
-    print("Hello")
+    print(mylist)
     if(len(mylist[0])==0):
          return {"item_data": "Not Found"}
     else:
