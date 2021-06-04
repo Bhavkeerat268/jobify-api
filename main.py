@@ -82,7 +82,7 @@ def getdetails(idi: str):
     jobs = db.child("JobList").get()
     if(jobs.val()==None):
         return {"item":"No data"}
-    for job in jobs:
+    for job in jobs.each():
         df = df.append(job.val(), ignore_index=True, verify_integrity=False, sort=False)
     df.columns = df.columns.str.upper()
     mylist = df.loc[df['ID'] == idi].to_dict('records')
