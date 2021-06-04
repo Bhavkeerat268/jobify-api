@@ -62,6 +62,8 @@ def index():
 def rec(keywords: Keyword):
     input_str = keywords.ckeyword
     final = Recommend.recommend(input_str)
+    if len(final)==0:
+        return {"recommend:No data"}
     rec_list = []
     for x in range(len(final)):
         rec_row = {
@@ -85,6 +87,8 @@ def getdetails(idi: str):
     firebase = pyrebase.initialize_app(firebaseConfig)
     db = firebase.database()
     jobs = db.child("JobList").get()
+    if(jobs.val()==None):
+        return {"item":"No data"}
     for job in jobs.each():
         df = df.append(job.val(), ignore_index=True, verify_integrity=False, sort=False)
     df.columns = df.columns.str.upper()
@@ -115,20 +119,26 @@ async def get_users():
     firebase = pyrebase.initialize_app(firebaseConfig)
     db = firebase.database()
     jobs = db.child("JobList").get()
-    for job in jobs.each():
-        df = df.append(job.val(), ignore_index=True, verify_integrity=False, sort=False)
-    df.columns = df.columns.str.upper()
-    allDatalist = df.to_dict('records')
-    print(allDatalist)
-
-    users = []
-    for i in range(len(allDatalist)):
-
-        model = User(Id=allDatalist[i]['ID'], JobProvideName=allDatalist[i]['JOBPROVIDENAME'], JobName=allDatalist[i]['JOBNAME'],
-                     JobLocation=allDatalist[i]['JOBLOCATION'],JobProvNumber=allDatalist[i]['JOBPROVNUMBER'],Book=allDatalist[i]['BOOK'])
+        if type(jobs.val()==None):
+        print("True")
+        users = []
+        model=User(Id="None",JobProvideName="None",JobName="None",JobLocation="None",JobProvNumber="None",Book="None")
         users.append(model)
+        return paginate(users)
+        else:
+            for job in jobs.each():
+                df = df.append(job.val(), ignore_index=True, verify_integrity=False, sort=False)
+        df.columns = df.columns.str.upper()
+        allDatalist = df.to_dict('records')
+        print(allDatalist)
 
-    return paginate(users)
+        users = []
+        for i in range(len(allDatalist)):
+             model = User(Id=allDatalist[i]['ID'], JobProvideName=allDatalist[i]['JOBPROVIDENAME'], JobName=allDatalist[i]['JOBNAME'],
+                     JobLocation=allDatalist[i]['JOBLOCATION'],JobProvNumber=allDatalist[i]['JOBPROVNUMBER'],Book=allDatalist[i]['BOOK'])
+             users.append(model)
+
+        return paginate(users)
 
 
 add_pagination(app)
