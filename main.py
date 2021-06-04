@@ -113,35 +113,33 @@ def getdetails(idi: str):
         return {"item_data": json_data}
 
 
-@app.get('/users', response_model=Page[User])
+    @app.get('/users', response_model=Page[User])
 async def get_users():
     df = pd.DataFrame()
     firebase = pyrebase.initialize_app(firebaseConfig)
     db = firebase.database()
     jobs = db.child("JobList").get()
-        if type(jobs.val()==None):
-            print("True")
-            users = []
-            model=User(Id="None",JobProvideName="None",JobName="None",JobLocation="None",JobProvNumber="None",Book="None")
-            users.append(model)
-            return paginate(users)
-        else:
-            for job in jobs.each():
-                df = df.append(job.val(), ignore_index=True, verify_integrity=False, sort=False)
+    if type(jobs.val()==None):
+        print("True")
+        users = []
+        model=User(Id="None",JobProvideName="None",JobName="None",JobLocation="None",JobProvNumber="None",Book="None")
+        users.append(model)
+        return paginate(users)
+    else:
+        for job in jobs:
+            df = df.append(job.val(), ignore_index=True, verify_integrity=False, sort=False)
         df.columns = df.columns.str.upper()
         allDatalist = df.to_dict('records')
-        print(allDatalist)
 
         users = []
         for i in range(len(allDatalist)):
-             model = User(Id=allDatalist[i]['ID'], JobProvideName=allDatalist[i]['JOBPROVIDENAME'], JobName=allDatalist[i]['JOBNAME'],
-                     JobLocation=allDatalist[i]['JOBLOCATION'],JobProvNumber=allDatalist[i]['JOBPROVNUMBER'],Book=allDatalist[i]['BOOK'])
-             users.append(model)
+            model = User(Id=allDatalist[i]['ID'], JobProvideName=allDatalist[i]['JOBPROVIDENAME'],
+                         JobName=allDatalist[i]['JOBNAME'],
+                         JobLocation=allDatalist[i]['JOBLOCATION'], JobProvNumber=allDatalist[i]['JOBPROVNUMBER'],
+                         Book=allDatalist[i]['BOOK'])
+            users.append(model)
 
         return paginate(users)
-
-
-add_pagination(app)
 
 if __name__ == "__main__":
     uvicorn.run("main:app",reload=True)
