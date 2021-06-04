@@ -19,17 +19,8 @@ firebaseConfig = {
     "messagingSenderId": "925759922851",
     "appId": "1:925759922851:web:8cfa6e8963743c69071516",
     "measurementId": "G-0XB1EM1YTE"
-};
+}
 
-df = pd.DataFrame()
-
-firebase = pyrebase.initialize_app(firebaseConfig)
-db = firebase.database()
-jobs = db.child("JobList").get()
-for job in jobs.each():
-    df = df.append(job.val(), ignore_index=True, verify_integrity=False, sort=False)
-
-df.columns = df.columns.str.upper()
 
 
 
@@ -37,8 +28,6 @@ def combine_features(row):
     return row['JOBLOCATION'] + " " + row['JOBNAME'] + " " + row['SHIFT'] + " " + row['AGESLOT'] + " " + row[
         'JOBGENDER'] + " " + row['ID']
 
-
-df["COMBINED_FEATURES"] = df.apply(combine_features, axis=1)
 
 
 class Recommend:
