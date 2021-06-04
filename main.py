@@ -120,7 +120,7 @@ async def get_users():
         users.append(model)
         return paginate(users)
     else:
-        for job in jobs:
+        for job in jobs.each():
             df = df.append(job.val(), ignore_index=True, verify_integrity=False, sort=False)
         df.columns = df.columns.str.upper()
         allDatalist = df.to_dict('records')
